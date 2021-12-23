@@ -35,11 +35,13 @@ import Lockscreen from './Authentication/Lockscreen';
 import Media from './Apps/Media';
 import Menus from './Material/menus';
 import Messages from './Apps/Messages';
+import Profile from './Authentication/Profile'
 // Error
 import NotFound from './Errors/NotFound';
 import Paper from './Material/paper';
 import PasswordReset from './Authentication/PasswordReset';
 import ResetPassword from './Authentication/ResetPassword';
+import BoardAdmin from './Authentication/BoardAdmin'
 import Pickers from './Material/pickers';
 import PricingPage from './Pages/Pricing';
 // Ecommerce
@@ -82,6 +84,8 @@ export {
   Lockscreen,
   PasswordReset,
   ResetPassword,
+  Profile,
+  BoardAdmin,
   Signin,
   Signup,
   NotFound,

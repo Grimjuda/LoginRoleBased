@@ -70,8 +70,14 @@ const Signin = ({history}) => {
    onSubmit: (values) => {
      
     AuthService.login(values.email,values.password).then(
-      () => {
-        history.push("/Lockscreen");
+      (user) => {
+
+        if(user.roles[0] === 'ROLE_ADMIN')
+        {history.push("/admin");}
+        else {
+          history.push("/charts")
+        }
+        
       
       },
       (error) => {
@@ -153,10 +159,6 @@ const Signin = ({history}) => {
                 <div className="pt-1 text-md-center">
                   <Link to="/forgot">
                     <Button>Forgot password?</Button>
-                  </Link>
-                  &nbsp;&nbsp;&nbsp;&nbsp;
-                  <Link to="/signup">
-                    <Button>Create new account.</Button>
                   </Link>
                 </div>
               </form>

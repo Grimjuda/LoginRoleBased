@@ -8,13 +8,38 @@ const Role = db.role;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+exports.sendemail = (req,res) => {
 
-exports.signup = (req, res) => {
+  
+  const message = `
+  <h1> Te hemos registrado en nuestra plataforma </h1>
+  <p> Estas son tu credenciales para que puedas ingresar </p>
+  <p> Email:  ${req.body.email} </p>
+  <p> Contraseña:  ${req.body.password} </p>
+  `
+  try {
+      
+    sendEmail ({
+         to: req.body.email,
+         subject: "Haz sido registrado a la plataforma",
+         text: message
+     })
+     res.status(200).json({success: true, data: "Email enviado"})
+ } catch (error) {
+
+
+  return next( new ErrorResponse("No se pudo enviar el email",500))
+ }
+}
+exports.signup =  (req, res) => {
   const user = new User({
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
+    password: req.body.password,
+    empresa: req.body.empresa,
+    sitioweb: req.body.sitioweb
   });
+
 
   user.save((err, user) => {
     if (err) {
@@ -39,7 +64,7 @@ exports.signup = (req, res) => {
               res.status(500).send({ message: err });
               return;
             }
-
+            
             res.send({ message: "User was registered successfully!" });
           });
         }
@@ -57,11 +82,12 @@ exports.signup = (req, res) => {
             res.status(500).send({ message: err });
             return;
           }
-
+         
           res.send({ message: "User was registered successfully!" });
         });
       });
     }
+ 
   });
 };
 
@@ -85,14 +111,18 @@ exports.signin = (req, res) => {
         req.body.password,
         user.password
       );
-
       if (!passwordIsValid) {
         return res.status(401).send({
           accessToken: null,
           message: "Invalid Password!"
         });
       }
-
+     if (user.authorized == false){
+       return res.status(401).send({
+         accessToken: null,
+         message: "No tienes permisos para entrar"
+       })
+     }
       var token = jwt.sign({ id: user.id }, config.secret, {
         expiresIn: 86400 // 24 hours
       });
@@ -106,6 +136,8 @@ exports.signin = (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        empresa: user.empresa,
+        sitioweb: user.sitioweb,
         roles: authorities,
         accessToken: token
       });

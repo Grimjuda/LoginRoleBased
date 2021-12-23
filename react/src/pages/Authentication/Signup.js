@@ -64,7 +64,10 @@ password: Yup.string()
   .max(40, 'Password must not exceed 40 characters'),
 confirmPassword: Yup.string()
   .required('Confirm Password is required')
-  .oneOf([Yup.ref('password'), null], 'Confirm Password does not match'),})
+  .oneOf([Yup.ref('password'), null], 'Confirm Password does not match'),
+empresa: Yup.string().required('Empresa is required'),
+sitioweb: Yup.string().required('Sitio web is required')
+})
 const Signup = ({history}) => {
   const [message,setMessage] = useState("")
  const formik = useFormik({
@@ -73,14 +76,16 @@ const Signup = ({history}) => {
      email: '',
      password: '',
      confirmPassword: '',
+     empresa: '',
+     sitioweb: '',
    },
    onSubmit: (values) => {
      
-    AuthService.register(values.username, values.email, values.password).then(
+    AuthService.register(values.username, values.email, values.password, values.empresa, values.sitioweb).then(
       (response) => {
-        setMessage(response.data.message);
+      
         setTimeout(() => {
-          history.push("/signin");
+          setMessage(response.data.message);
         }, 5000);
         
         
@@ -97,7 +102,28 @@ const Signup = ({history}) => {
        
       }
     );
+    AuthService.sendemail( values.email,values.password).then(
+      (response) => {
     
+        setMessage(response.data.data);
+      
+        setTimeout(() => {
+         setMessage("");
+       },5000);
+        
+      },
+      (error) => {
+        const resMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+
+        setMessage(resMessage);
+       
+      }
+    );
    
    },
    validationSchema: validationSchema
@@ -127,6 +153,7 @@ const Signup = ({history}) => {
                     Create an app id to continue.
                   </Typography>
                   {message && <Typography variant="overline" >{message}</Typography>}
+                 
                 </div>
                 <TextField
                   
@@ -153,6 +180,32 @@ const Signup = ({history}) => {
                   onChange={formik.handleChange}
                   error={formik.touched.email && Boolean(formik.errors.email)}
                   helperText={formik.touched.email && formik.errors.email}
+                />
+                   <TextField
+                  
+                  id="empresa"
+                  name="empresa"
+                  label="Empresa"
+                  className={classes.textField}
+                 fullWidth
+                  margin="normal"
+                  value={formik.values.empresa}
+                  onChange={formik.handleChange}
+                  error={formik.touched.empresa && Boolean(formik.errors.empresa)}
+                  helperText={formik.touched.empresa && formik.errors.empresa}
+                />
+                   <TextField
+                  
+                  id="sitioweb"
+                  name="sitioweb"
+                  label="Sitio web"
+                  className={classes.textField}
+                 fullWidth
+                  margin="normal"
+                  value={formik.values.sitioweb}
+                  onChange={formik.handleChange}
+                  error={formik.touched.sitioweb && Boolean(formik.errors.sitioweb)}
+                  helperText={formik.touched.sitioweb && formik.errors.sitioweb}
                 />
                 <TextField
                  
@@ -182,6 +235,7 @@ const Signup = ({history}) => {
                   error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
                   helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
                 />
+
               
                 <Button
                    variant="contained"

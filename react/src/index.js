@@ -5,6 +5,8 @@ import {
   PasswordReset,
   Signin,
   ResetPassword,
+  Profile,
+  BoardAdmin,
   Signup
 } from "./pages";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
@@ -14,6 +16,7 @@ import Dashboard from "./containers/Dashboard";
 import React from "react";
 import registerServiceWorker from "./registerServiceWorker";
 import { render } from "react-dom";
+
 
 render(
   <AppProvider>
@@ -25,6 +28,8 @@ render(
         <Route exact path="/forgot" component={PasswordReset} />
         <Route exact path="/resetpassword/:resetToken" component={ResetPassword} />
         <Route exact path="/signin" component={Signin} />
+        <Route exact path="/admin" component={BoardAdmin} />
+        <Route exact path="/profile" component={Profile} />
         <Route exact path="/signup" component={Signup} />
         <Route path="/" component={Dashboard} />
       </Switch>

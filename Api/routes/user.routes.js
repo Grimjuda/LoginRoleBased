@@ -19,6 +19,9 @@ module.exports = function(app) {
   app.get(
     "/api/test/admin",
     [authJwt.verifyToken, authJwt.isAdmin],
-    controller.adminBoard
+    controller.findAllUserPendingAuthorization
   );
+
+  app.put("/api/test/updateUser/:id", controller.updateUser);
+  app.put("/api/test/deleteUser/:id", controller.deleteUser);
 };

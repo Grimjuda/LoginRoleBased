@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+
 const UserSchema =
   new mongoose.Schema({
     username: {
@@ -24,9 +25,21 @@ const UserSchema =
         type: String,
         required: [true, "Ingresa una contraseña"],
         minlength: 6,
+        
        
     },
-   
+     authorized: {
+       type: Boolean,
+       default: true,
+     },
+     empresa: {
+      type: String,
+      required: [true,"Ingresa una empresa"]
+  },
+  sitioweb: {
+    type: String,
+    required: [true,"Ingresa un sitio web"]
+},
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     roles: [

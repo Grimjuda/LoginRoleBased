@@ -2,11 +2,13 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/auth/";
 
-const register = (username, email, password) => {
+const register = (username, email, password, empresa, sitioweb) => {
   return axios.post(API_URL + "signup", {
     username,
     email,
     password,
+    empresa,
+    sitioweb,
   });
 };
 const forgotpassword = (email) => {
@@ -17,6 +19,14 @@ const forgotpassword = (email) => {
   });
 };
 
+const sendemail = (email,password) => {
+  return axios.post(API_URL + "sendemail", {
+    
+    email,
+    password
+    
+  });
+};
 
 const login = (email, password) => {
   return axios
@@ -45,6 +55,7 @@ export default {
   register,
   login,
   logout,
+  sendemail,
   forgotpassword,
   getCurrentUser,
 };
