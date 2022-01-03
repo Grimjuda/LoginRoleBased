@@ -2,7 +2,7 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { Link } from "react-router-dom";
-import {useState} from "react";
+import {useState,useEffect} from "react";
 import TextField from '@material-ui/core/TextField'
 import Typography from "@material-ui/core/Typography";
 import classNames from "classnames";
@@ -10,7 +10,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import {useFormik} from 'formik'
 import * as Yup from 'yup';
 import AuthService from './services/auth.service'
-
+import UserService from "./services/user.service";
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -70,6 +70,7 @@ sitioweb: Yup.string().required('Sitio web is required')
 })
 const Signup = ({history}) => {
   const [message,setMessage] = useState("")
+  const [message2,setMessage2] = useState("")
  const formik = useFormik({
    initialValues: {
      username: '',
@@ -83,9 +84,9 @@ const Signup = ({history}) => {
      
     AuthService.register(values.username, values.email, values.password, values.empresa, values.sitioweb).then(
       (response) => {
-      
+        setMessage(response.data.message);
         setTimeout(() => {
-          setMessage(response.data.message);
+          setMessage("");
         }, 5000);
         
         
@@ -105,10 +106,10 @@ const Signup = ({history}) => {
     AuthService.sendemail( values.email,values.password).then(
       (response) => {
     
-        setMessage(response.data.data);
+        setMessage2(response.data.data);
       
         setTimeout(() => {
-         setMessage("");
+         setMessage2("");
        },5000);
         
       },
@@ -120,7 +121,7 @@ const Signup = ({history}) => {
           error.message ||
           error.toString();
 
-        setMessage(resMessage);
+        setMessage2(resMessage);
        
       }
     );
@@ -129,7 +130,8 @@ const Signup = ({history}) => {
    validationSchema: validationSchema
  })
  
-    
+
+
  
  
 
@@ -153,6 +155,8 @@ const Signup = ({history}) => {
                     Create an app id to continue.
                   </Typography>
                   {message && <Typography variant="overline" >{message}</Typography>}
+                  {message2 && <Typography variant="overline" >{message2}</Typography>}
+            
                  
                 </div>
                 <TextField

@@ -14,6 +14,7 @@ import * as Yup from 'yup';
 import AuthService from './services/auth.service'
 
 
+
 const useStyles = makeStyles(theme => ({
   card: {
     overflow: "visible"
@@ -73,7 +74,7 @@ const Signin = ({history}) => {
       (user) => {
 
         if(user.roles[0] === 'ROLE_ADMIN')
-        {history.push("/admin");}
+        {history.push("/signup");}
         else {
           history.push("/charts")
         }

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/auth/";
-
+import authHeader from "./auth-header";
 const register = (username, email, password, empresa, sitioweb) => {
   return axios.post(API_URL + "signup", {
     username,
@@ -9,7 +9,7 @@ const register = (username, email, password, empresa, sitioweb) => {
     password,
     empresa,
     sitioweb,
-  });
+  },{ headers: authHeader() });
 };
 const forgotpassword = (email) => {
   return axios.post(API_URL + "forgotpassword", {
@@ -25,7 +25,7 @@ const sendemail = (email,password) => {
     email,
     password
     
-  });
+  },{ headers: authHeader() });
 };
 
 const login = (email, password) => {
