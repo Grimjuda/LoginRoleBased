@@ -16,12 +16,13 @@ module.exports = function(app) {
       verifySignUp.checkDuplicateEmail,
       verifySignUp.checkRolesExisted,
       authJwt.verifyToken, authJwt.isAdmin
+     
     ],
     controller.signup
   );
 
   app.post("/api/auth/signin", controller.signin);
-  app.post("/api/auth/sendemail", [authJwt.verifyToken, authJwt.isAdmin],controller.sendemail)
+  app.post("/api/auth/sendemail",  [authJwt.verifyToken, authJwt.isAdmin],controller.sendemail)
   app.post("/api/auth/forgotpassword", controller.forgotpassword);
   app.put("/api/auth/resetpassword/:resetToken", controller.resetpassword);
 };
