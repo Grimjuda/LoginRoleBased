@@ -15,13 +15,25 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete'
-
-import {React} from 'react';
+import authService from '../Authentication/services/auth.service';
+import {React,useState,useEffect} from 'react';
 import { Wrapper } from '../../components';
 import { mockChart } from '../../utils/mock';
 
 const Charts = () => {
-  
+  const [showUserFilter, setShowUserFilter] = useState(false);
+  const [showAdminFilter, setShowAdminFilter] = useState(false);
+  const [currentUser, setCurrentUser] = useState(undefined);
+
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+
+    if (user) {
+      setCurrentUser(user);
+      setShowUserFilter(user.roles.includes("ROLE_USER"));
+      setShowAdminFilter(user.roles.includes("ROLE_ADMIN"));
+    }
+  }, []);
   const empresas = ['La fiera', 'Cosco' , 'Soriana','Lorem'];
   const sitiosweb = ['Bodega', 'Oxxo' , 'Bravo','New York Times'];
   return (
@@ -35,6 +47,7 @@ const Charts = () => {
     sx={{ width: 400 }}
     renderInput={(params) => <TextField {...params} label="Sitio web" />}
   /> </Grid>
+  {showAdminFilter && (
   <Grid item  lg={4} xs={12} sm={6} md={6} >
   <Autocomplete
     disablePortal
@@ -42,7 +55,8 @@ const Charts = () => {
     options={sitiosweb}
     sx={{ width: 300 }}
     renderInput={(params) => <TextField {...params} label="Empresa" />}
-  /></Grid>
+  /></Grid>)}
+  
  
   <Grid item  lg={4} xs={12} sm={6} md={6} > <form  noValidate>
       <TextField

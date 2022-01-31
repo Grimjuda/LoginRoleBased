@@ -12,8 +12,10 @@ exports.allAccess = (req, res) => {
   exports.adminBoard = (req, res) => {
     res.status(200).send("Admin Content.");
   };
-  exports.findAllUserPendingAuthorization = (req, res) => {
-    User.find({ authorized:false })
+  exports.findAllUsers = (req, res) => {
+    User.findAll({
+      attributes: ['id','username','email',]
+    })
       .then(data => {
         res.send(data);
         console.log(data);
@@ -21,29 +23,32 @@ exports.allAccess = (req, res) => {
       .catch(err => {
         res.status(500).send({
           message:
-            err.message || "Some error occurred while retrieving pending users authorization."
+            err.message || "Some error occurred while retrieving  users "
         });
       });
   };
 
   exports.deleteUser = (req, res) => {
+
     const id = req.params.id;
   
-    User.findByIdAndRemove(id)
-      .then(data => {
-        if (!data) {
-          res.status(404).send({
-            message: `Cannot delete User with id=${id}. Maybe User was not found!`
+    User.destroy({
+      where: { id: id }
+    })
+      .then(num => {
+        if (num == 1) {
+          res.send({
+            message: "User was deleted successfully!"
           });
         } else {
           res.send({
-            message: "User was deleted successfully!"
+            message: `Cannot delete User with id=${id}. Maybe User was not found!`
           });
         }
       })
       .catch(err => {
         res.status(500).send({
-          message: "Could not delete Tutorial with id=" + id
+          message: "Could not delete User with id=" + id
         });
       });
   };
@@ -56,13 +61,19 @@ exports.allAccess = (req, res) => {
   
     const id = req.params.id;
   
-    User.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
-      .then(data => {
-        if (!data) {
-          res.status(404).send({
-            message: `Cannot update User with id=${id}. Maybe User was not found!`
+    User.update(req.body, {
+      where: { id: id }
+    })
+      .then(num => {
+        if (num == 1) {
+          res.send({
+            message: "User was updated successfully."
           });
-        } else res.send({ message: "User was updated successfully." });
+        } else {
+          res.send({
+            message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`
+          });
+        }
       })
       .catch(err => {
         res.status(500).send({

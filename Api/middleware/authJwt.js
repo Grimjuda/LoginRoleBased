@@ -39,10 +39,29 @@ isAdmin = (req, res, next) => {
   });
 };
 
+isAdminMaster = (req, res, next) => {
+  User.findByPk(req.userId).then(user => {
+    user.getRoles().then(roles => {
+      for (let i = 0; i < roles.length; i++) {
+        if (roles[i].name === "admin_master") {
+          next();
+          return;
+        }
+      }
+
+      res.status(403).send({
+        message: "Require Admin Master Role!"
+      });
+      return;
+    });
+  });
+};
+
 
 const authJwt = {
   verifyToken: verifyToken,
   isAdmin: isAdmin,
+  isAdminMaster: isAdminMaster
   
 };
 module.exports = authJwt;

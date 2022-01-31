@@ -18,10 +18,11 @@ module.exports = function(app) {
 
   app.get(
     "/api/test/admin",
-    [authJwt.verifyToken, authJwt.isAdmin],
-    controller.adminBoard
+    [authJwt.verifyToken, authJwt.isAdminMaster],
+    controller.findAllUsers
   );
 
   app.put("/api/test/updateUser/:id", controller.updateUser);
-  app.put("/api/test/deleteUser/:id", controller.deleteUser);
+  app.delete("/api/test/deleteUser/:id", controller.deleteUser);
+  
 };

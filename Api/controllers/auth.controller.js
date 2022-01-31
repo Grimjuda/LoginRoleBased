@@ -5,6 +5,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const sendEmail =require('../utils/sendEmail')
 const User = db.user;
 const Role = db.role;
+const Empresa = db.empresa;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -32,12 +33,12 @@ exports.sendemail = (req,res) => {
  }
 }
 exports.signup =  (req, res) => {
+  
   User.create({
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
-    empresa: req.body.empresa,
-    sitioweb: req.body.sitioweb
+    
   }).then(user => {
     if (req.body.roles) {
       Role.findAll({
@@ -53,6 +54,9 @@ exports.signup =  (req, res) => {
       });
     } else {
       // user role = 1
+      Empresa.create({name: req.body.empresa}).then().catch((err) => {
+        console.log("Error al crear empresa: ", err);
+      });
       user.setRoles([1]).then(() => {
         res.send({ message: "User was registered successfully!" });
       });
