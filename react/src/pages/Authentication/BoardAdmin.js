@@ -37,12 +37,14 @@ const BoardAdmin = () => {
   const classes = useStyles();
   const [content, setContent] = useState([]);
   const [modalEdit,setModalEdit] = useState(false);
+  const [modalDelete,setModalDelete] = useState(false);
   const [userSelected,setUserSelected] = useState({
 
-    _id: null,
+    id: null,
     username: '',
     email: '',
-    authorized: false,
+ 
+   
     
   })
 const handleChange = e => {
@@ -56,78 +58,63 @@ const handleChange = e => {
 const openCloseModalEdit = () => {
   setModalEdit(!modalEdit);
 }
+const openCloseModalDelete = () => {
+  setModalDelete(!modalDelete);
+}
 const updateUser = async ()  => {
-await axios.put(baseURL+"updateUser/"+userSelected._id,userSelected).then(response =>{
+await axios.put(baseURL+"updateUser/"+userSelected.id,userSelected).then(response =>{
   var updatedData = content;
   updatedData.map( user =>{
-    if(userSelected._id === user._id) {
+    if(userSelected.id === user.id) {
       user.username = userSelected.username;
       user.email = userSelected.email;
-      user.authorized = userSelected.authorized;
+      
+    
     }
   })
   setContent(updatedData);
   openCloseModalEdit();
 })
 }
-const updateAutorizacion = async status => {
-  var data = {
-    _id: userSelected._id,
-    username: userSelected.username,
-    email: userSelected.email,
-    authorized: status
-  };
-
-   await axios.put(baseURL+"updateUser/"+userSelected._id, data)
+const deleteUser = async() => {
+  await axios.delete(baseURL+'deleteUser/'+userSelected.id)
   .then(response => {
-    setUserSelected({ ...userSelected, authorized: status });
-    
-    console.log(response.data);
-    
+    setContent(content.filter(user => user.id !== userSelected.id))
+    openCloseModalDelete();
   })
-  .catch(e => {
-    console.log(e);
-  });
-  UserList()
 }
 
 const selectUser = (user,action) => {
   setUserSelected(user);
-  (action === 'Edit')&&setModalEdit(true)
+  (action === 'Edit')? openCloseModalEdit() : openCloseModalDelete()
 }
 const bodyEdit = (
 <div className={classes.modal}>
   <h3>Editar usuario</h3>
 <TextField name="username" fullWidth label="Nombre de usuario" onChange={handleChange} value={userSelected && userSelected.username}></TextField>
 <br/>
-<TextField name="email" fullWidth label="Nombre de usuario" onChange={handleChange} value={userSelected && userSelected.email}></TextField>
+<TextField name="email" fullWidth label="email" onChange={handleChange} value={userSelected && userSelected.email}></TextField>
+
 <br/>
 
-{userSelected.authorized ? (
-            <button
-            
-              onClick={() => updateAutorizacion(false)}
-            >
-              Denegar acceso
-            </button>
-          ) : (
-            <button
-             
-              onClick={() => updateAutorizacion(true)}
-            >
-              Dar acceso
-            </button>
-          )}
-<br/>
-<TextField name="campoextra" fullWidth label="CampoExtra" onChange={handleChange} value={"Pendiente"}></TextField>
-<br/>
 <div align="right">
   <Button color="primary" onClick={ () => updateUser()}>Editar</Button>
   <Button onClick={ () => openCloseModalEdit()}>Cancelar</Button>
 
 </div>
   
-</div>)  
+</div>) 
+
+const bodyDelete = (
+<div className={classes.modal}>
+<p>Estás seguro de eliminar al usuario <b>{userSelected && userSelected.username}</b>?</p>
+<p>Email: <b>{userSelected && userSelected.email}</b></p>
+
+<div align="right">
+  <Button color="secondary" onClick={ () => deleteUser()}>Eliminar</Button>
+  <Button onClick={ () => openCloseModalDelete()}>Cancelar</Button>
+</div>
+</div>)
 
 const UserList = () => {
   UserService.getAdminBoard().then(
@@ -160,23 +147,21 @@ useEffect(  () => {
            <TableRow>
              <TableCell>Username</TableCell>
              <TableCell>Email</TableCell>
-             <TableCell>Autorización</TableCell>
-             <TableCell>Campo extra</TableCell>
+           
              <TableCell>Acciones</TableCell>
            </TableRow>
          </TableHead>
          <TableBody>
            {content.map(usuario =>(
 
-             <TableRow key = {usuario._id}>
+             <TableRow key = {usuario.id}>
              <TableCell>{usuario.username}</TableCell>
              <TableCell>{usuario.email}</TableCell>
-             <TableCell>{usuario.authorized ? "Autorizado"  : "No autorizado" } </TableCell>
-             <TableCell>{"Campo Extra"}</TableCell>
+            
              <TableCell>
              <Edit className={classes.Icons} onClick= { () => selectUser(usuario,'Edit')}/>
              &nbsp; &nbsp; &nbsp;
-             <Delete className={classes.Icons}/>
+             <Delete className={classes.Icons} onClick= { () => selectUser(usuario,'Delete')}/>
              </TableCell>
              </TableRow>
 
@@ -189,9 +174,16 @@ useEffect(  () => {
 
      <Modal
      open={modalEdit}
-     onClose={ openCloseModalEdit}>
+     onClose={openCloseModalEdit}>
 
        {bodyEdit}
+
+     </Modal>
+     <Modal
+     open={modalDelete}
+     onClose={openCloseModalDelete}>
+
+       {bodyDelete}
 
      </Modal>
     </div>

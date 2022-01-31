@@ -20,41 +20,48 @@ verifyToken = (req, res, next) => {
   });
 };
 
-isAdmin = (req, res, next) => {
-  User.findById(req.userId).exec((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
 
-    Role.find(
-      {
-        _id: { $in: user.roles }
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
+isAdmin = (req, res, next) => {
+  User.findByPk(req.userId).then(user => {
+    user.getRoles().then(roles => {
+      for (let i = 0; i < roles.length; i++) {
+        if (roles[i].name === "admin") {
+          next();
           return;
         }
-
-        for (let i = 0; i < roles.length; i++) {
-          if (roles[i].name === "admin") {
-            next();
-            return;
-          }
-        }
-
-        res.status(403).send({ message: "Require Admin Role!" });
-        return;
       }
-    );
+
+      res.status(403).send({
+        message: "Require Admin Role!"
+      });
+      return;
+    });
+  });
+};
+
+isAdminMaster = (req, res, next) => {
+  User.findByPk(req.userId).then(user => {
+    user.getRoles().then(roles => {
+      for (let i = 0; i < roles.length; i++) {
+        if (roles[i].name === "admin_master") {
+          next();
+          return;
+        }
+      }
+
+      res.status(403).send({
+        message: "Require Admin Master Role!"
+      });
+      return;
+    });
   });
 };
 
 
 const authJwt = {
-  verifyToken,
-  isAdmin,
+  verifyToken: verifyToken,
+  isAdmin: isAdmin,
+  isAdminMaster: isAdminMaster
   
 };
 module.exports = authJwt;

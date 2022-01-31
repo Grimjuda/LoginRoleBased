@@ -73,7 +73,7 @@ const Signin = ({history}) => {
     AuthService.login(values.email,values.password).then(
       (user) => {
 
-        if(user.roles[0] === 'ROLE_ADMIN')
+        if(user.roles[0] === 'ROLE_ADMIN' || user.roles[0] === 'ROLE_ADMIN_MASTER')
         {history.push("/signup");}
         else {
           history.push("/charts")

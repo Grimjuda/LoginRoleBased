@@ -1,78 +1,47 @@
-
 const crypto = require('crypto');
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const UserSchema =
-  new mongoose.Schema({
+module.exports = (sequelize, Sequelize) => {
+  const User = sequelize.define("users", {
     username: {
-        type: String,
-        required: [true,"Ingresa un nombre de usuario"]
+      type: Sequelize.STRING
     },
-   
     email: {
-        type: String,
-        required: [true, "Ingresa un email"],
-        unique: true,
-        match: [
-           /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ ,
-           "Ingresa un email valido"
-        ]
+      type: Sequelize.STRING,
+      unique: true
     },
-   
     password: {
-        type: String,
-        required: [true, "Ingresa una contraseña"],
-        minlength: 6,
-        
-       
+      type: Sequelize.STRING
     },
-     authorized: {
-       type: Boolean,
-       default: true,
-     },
-     empresa: {
-      type: String,
-      required: [true,"Ingresa una empresa"]
-  },
-  sitioweb: {
-    type: String,
-    required: [true,"Ingresa un sitio web"]
-},
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
-    roles: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Role"
-      }
-    ]
-  })
+ 
+    resetPasswordToken: {type: Sequelize.STRING
+    },
+     resetPasswordExpire: {type: Sequelize.DATE}
+  });
+ 
+const setSaltAndPassword = async function(user) {
+    if (user.changed('password')) {
+      const salt = bcrypt.genSaltSync(10);
+      user.password = bcrypt.hashSync(user.password, salt);
+    }
+  };
+  User.prototype.getResetPasswordToken =  function() {
+    const resetToken = crypto.randomBytes(20).toString("hex");
+     this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    this.resetPasswordExpire = Date.now() + 10 * (60*1000);
+    return resetToken;
+  };
+  User.prototype.getSignedJwtToken =  function() {
+    return jwt.sign({ id: this._id},process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE,})
+  };
+ 
+ 
+
+  User.beforeCreate(setSaltAndPassword);
+  User.beforeUpdate(setSaltAndPassword);
+
+  return User;
+};
 
 
-UserSchema.pre("save",async function(next){
-  if(!this.isModified("password")) {
-      next();
-  }
-const salt = await bcrypt.genSalt(10);
-this.password = await bcrypt.hash(this.password, salt);
-next();
-})
 
-UserSchema.methods.matchPasswords = async function(password){
-  return await bcrypt.compare(password,this.password);
-}
-
-UserSchema.methods.getSignedJwtToken = function(){
-return jwt.sign({ id: this._id},process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRE,})
-}
-
-UserSchema.methods.getResetPasswordToken  = function(){
-const resetToken = crypto.randomBytes(20).toString("hex");
-this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-this.resetPasswordExpire = Date.now() + 10 * (60*1000);
-return resetToken;
-}
-const User = mongoose.model("User",UserSchema)
-module.exports = User;
